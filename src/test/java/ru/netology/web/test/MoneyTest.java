@@ -35,8 +35,23 @@ public class MoneyTest {
     void shouldTransferFromFirstToSecond() {
         var amount = generateValidAmount(firstCardBalance);
         var expectedBalanceFirstCard = firstCardBalance - amount;
+        var expectedBalanceSecondCard = secondCardBalance + amount;
+        var transferPage = dashboardPage.selectCardToTransfer(secondCardInfo);
+        dashboardPage = transferPage.makeValidTransfer(String.valueOf(amount), firstCardInfo);
+        dashboardPage.reloadDashboardPage();
+        assertAll(() -> dashboardPage.checkCardBalance(firstCardInfo, expectedBalanceFirstCard),
+                () -> dashboardPage.checkCardBalance(secondCardInfo, expectedBalanceSecondCard));
+    }
+
+    @Test
+    void shouldGetErrorMessageIfAmountMoreBalance() {
+        var amount = generateInvalidAmount(secondCardBalance);
+        var transferPage = dashboardPage.selectCardToTransfer(firstCardInfo);
+        transferPage.makeTransfer(String.valueOf(amount), secondCardInfo);
+        transferPage.findErrorMessage("Выполнена попытка перевода суммы, превышающей остаток на карте списания");
 
     }
+
 }
 
 
